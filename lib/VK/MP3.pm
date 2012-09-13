@@ -9,7 +9,7 @@ use LWP::Protocol::https;
 use HTML::Entities;
 use URI::Escape;
 
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 
 sub new {
   my ($class, %args) = @_;
@@ -143,9 +143,9 @@ You can also look for information at:
 
 =over 3
 
-=item * BitBucket
+=item * GitHub
 
-L<https://bitbucket.org/afiskon/pl-vkmp3>
+L<https://github.com/afiskon/p5-vk-mp3>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
