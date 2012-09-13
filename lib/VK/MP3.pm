@@ -34,7 +34,7 @@ sub search {
   my $res = $self->{ua}->get('http://vk.com/search?c[section]=audio&c[q]='.uri_escape_utf8($query));
   die 'LWP: '.$res->status_line unless $res->is_success;
 
-  my @matches = $res->decoded_content =~  m'<input type="hidden" id="audio_info(.*?)</span></div>'sgi;
+  my @matches = $res->decoded_content =~  m'<input type="hidden" id="audio_info(.*?)</tbody></table>'sgi;
 
   my @rslt;
   push @rslt, $self->_parse_found_item($_) for(@matches);
@@ -45,14 +45,14 @@ sub search {
 
 sub _parse_found_item {
   my ($self, $str) = @_;
-  my ($name) = $str =~ m{<div class="audio_title_wrap"><b>(.+)</a>}si;
+  my ($name) = $str =~ m{<div class="title_wrap fl_l".*?>(.*?)</div>}si;
   return undef unless $name;
  
   $name =~ s/<[^>]+>//g;
   $name =~ s/ ?\([^\(]*$//;
   $name = decode_entities($name);
 
-  my ($duration) = $str =~ m{<div class="duration fl_r" onmousedown="if \(window\.audioPlayer\) audioPlayer\.switchTimeFormat\('[^']+', event\);">(\d+:\d+)</div>}i;
+  my ($duration) = $str =~ m{<div class="duration fl_r".*?>(\d+:\d+)</div>}i;
   my ($link) = $str =~ m{value="(http://[^",]+\.mp3)}i;
 
   if($duration) {

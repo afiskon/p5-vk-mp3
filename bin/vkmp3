@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# vk-get-mp3.pl script v 0.10.2
+# vk-get-mp3.pl script v 0.10.4
 # (c) Alexandr Alexeev 2011-2012 | http://eax.me/
 # Special thanks to Bekenev Ruslan ( http://bitbucket.org/KryDos ) 
 
@@ -13,7 +13,7 @@ use MP3::Info;
 use VK::MP3;
 
 use constant {
-    VERSION => '0.10.3',
+    VERSION => '0.10.4',
     DEFAULT_LOGIN => 'billy@microsoft.com',
     DEFAULT_PASSWORD => 'qwerty',
     DEFAULT_SAVE_DIR => './',

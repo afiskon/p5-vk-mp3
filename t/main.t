@@ -63,17 +63,17 @@ $Mock_resp->mock(decoded_content => sub {q{
       <input type="hidden" id="audio_info8087439_88606104_1" value="http://cs1234.userapi.com/FAKE/AUDIO/URL/1.mp3,206" />
       <td class="info">
         <div class="duration fl_r" onmousedown="if (window.audioPlayer) audioPlayer.switchTimeFormat('19485673_70511433_36', event);">3:08</div>
-        <div class="audio_title_wrap"><b><a href="/search?section=audio&c[q]=%CA%E8%EF%E5%EB%EE%E2" onclick="return nav.go(this, event);"><span class="match">Кипелов</span></a></b> &ndash; <span id="title19485673_70511433_36"><a href="#" onclick="searchActions.showLyrics('19485673_70511433_36',3274073,0); return false;">Я свободен&#33;</a></span> <span class="user">(<a href="/id19485673" onclick="return nav.go(this, event);">А. Базалеева</a>)</span></div>
-      </td>
+        <div class="title_wrap fl_l"><b><a href="/search?section=audio&c[q]=%CA%E8%EF%E5%EB%EE%E2" onclick="return nav.go(this, event);"><span class="match">Кипелов</span></a></b> &ndash; <span id="title19485673_70511433_36"><a href="#" onclick="searchActions.showLyrics('19485673_70511433_36',3274073,0); return false;">Я свободен&#33;</a></span> <span class="user">(<a href="/id19485673" onclick="return nav.go(this, event);">А. Базалеева</a>)</span></div>
+      </tbody></table>
       <input type="hidden" id="audio_info8087439_88606104_1" value="http://cs1234.userapi.com/FAKE/AUDIO/URL/2.mp3,206" />
       <td class="info">
         <div class="duration fl_r" onmousedown="if (window.audioPlayer) audioPlayer.switchTimeFormat('5211410_97970670_6', event);">4:47</div>
-        <div class="audio_title_wrap"><b><a href="/search?section=audio&c[q]=%CA%E8%EF%E5%EB%EE%E2" onclick="return nav.go(this, event);"><span class="match">Кипелов</span></a></b> &ndash; <span id="title5211410_97970670_6"><a href="#" onclick="searchActions.showLyrics('5211410_97970670_6',9346042,0); return false;">Власть Огня</a></span> <span class="user">(<a href="/dark_katarios" onclick="return nav.go(this, event);">Е. Юлина</a>)</span></div>
-      </td>
+        <div class="title_wrap fl_l"><b><a href="/search?section=audio&c[q]=%CA%E8%EF%E5%EB%EE%E2" onclick="return nav.go(this, event);"><span class="match">Кипелов</span></a></b> &ndash; <span id="title5211410_97970670_6"><a href="#" onclick="searchActions.showLyrics('5211410_97970670_6',9346042,0); return false;">Власть Огня</a></span> <span class="user">(<a href="/dark_katarios" onclick="return nav.go(this, event);">Е. Юлина</a>)</span></div>
+      </tbody></table>
       <input type="hidden" id="audio_info8087439_88606104_1" value="http://cs1234.userapi.com/FAKE/AUDIO/URL/3.mp3,206" />
       <td class="info">
-        <div class="audio_title_wrap"><b><a href="/search?section=audio&c[q]=%C1%E8%202%20%E8%20%CA%E8%EF%E5%EB%EE%E2" onclick="return nav.go(this, event);">Би 2 и <span class="match">Кипелов</span></a></b> &ndash; <span id="title12405979_93663456_14"><a href="#" onclick="searchActions.showLyrics('12405979_93663456_14',7043992,0); return false;">Легион</a></span> <span class="user">(<a href="/apostol_666" onclick="return nav.go(this, event);">А. Абрамов</a>)</span></div>
-      </td>
+        <div class="title_wrap fl_l"><b><a href="/search?section=audio&c[q]=%C1%E8%202%20%E8%20%CA%E8%EF%E5%EB%EE%E2" onclick="return nav.go(this, event);">Би 2 и <span class="match">Кипелов</span></a></b> &ndash; <span id="title12405979_93663456_14"><a href="#" onclick="searchActions.showLyrics('12405979_93663456_14',7043992,0); return false;">Легион</a></span> <span class="user">(<a href="/apostol_666" onclick="return nav.go(this, event);">А. Абрамов</a>)</span></div>
+      </tbody></table>
   }});
 
 my @exp_duration = (3 * 60 + 8, 4 * 60 + 47, 0);
