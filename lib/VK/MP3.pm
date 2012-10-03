@@ -43,6 +43,16 @@ sub search {
   return \@rslt;
 }
 
+sub get_playlist {
+  my ($self) = @_;
+  my $res = $self->{ua}->post('https://login.vk.com/?act=login', {
+      email => $self->{login},
+    });  
+  return 0 unless $res->is_success;
+  warn $res->decoded_content;
+ 
+}
+
 sub _parse_found_item {
   my ($self, $str) = @_;
   my ($name) = $str =~ m{<div class="title_wrap fl_l".*?>(.*?)</div>}si;
@@ -71,8 +81,13 @@ sub _login {
       email => $self->{login},
       pass => $self->{password},
     });  
-  return 0 unless $res->is_success;
-  return $res->decoded_content =~ m#<a[^>]+href="https://login\.vk\.com/\?act=logout&hash=#i;
+
+  if(  $res->is_success &&
+      ($res->decoded_content =~ /var\s+vk\s*=\s*\{[^\{\}]*?id\s*\:\s*(\d+)/i) ) {
+    $self->{id} = $1;
+    return 1;
+  }
+  return 0;
 }
 
 sub _create_ua {
@@ -132,6 +147,12 @@ Constructs a new C<VK::MP3> object and logs on vk.com. Throws exception in case 
     my $rslt = $vk->search($query)
 
 Results, found by $query.
+
+=head2 C<get_playlist>
+
+    my $rslt = $vk->get_playlist()
+
+Returns your playlist.
 
 =head1 SUPPORT
 

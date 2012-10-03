@@ -39,7 +39,8 @@ cmp_ok($arg_hist[-1]->{email}, '==', 456);
 cmp_ok($arg_hist[-1]->{pass}, '==', 789);
 like($@, qr/^ERROR: login failed/);
 
-$Mock_resp->mock(decoded_content => sub { 'bebebe <a a="b" c="d" href="https://login.vk.com/?act=logout&hash=bebebe bebebe' } );
+# $Mock_resp->mock(decoded_content => sub { 'bebebe <a a="b" c="d" href="https://login.vk.com/?act=logout&hash=bebebe bebebe' } );
+$Mock_resp->mock(decoded_content => sub { 'bebebe var vk = { xxx : 123, id: 1234 }; bebebe' } );
 
 my $vk = eval { VK::MP3->new(login => 321, password => 654) };
 cmp_ok($@, 'eq', '');
