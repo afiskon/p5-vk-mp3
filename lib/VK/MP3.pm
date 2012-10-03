@@ -45,9 +45,24 @@ sub search {
 
 sub get_playlist {
   my ($self) = @_;
-  my $res = $self->{ua}->post('https://login.vk.com/?act=login', {
-      email => $self->{login},
-    });  
+  my $res;
+
+  $res = $self->{ua}->get('http://vk.com/audio'); # we need cookies
+  return 0 unless $res->is_success;
+
+  $res = $self->{ua}->post('http://vk.com/audio', {
+      load_audios_silent => 1,
+      al => 1,
+      gid => 0,
+      id => $self->{id},
+    }, 
+      'Accept-Encoding' => 'gzip,deflate,sdch',
+      'Referer' => 'http://vk.com/audio',
+      'Origin' => 'http://vk.com',
+      'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 '.
+                      '(KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1',
+      'X-Requested-With' => 'XMLHttpRequest',
+    );  
   return 0 unless $res->is_success;
   warn $res->decoded_content;
  
