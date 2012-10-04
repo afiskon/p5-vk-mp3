@@ -99,7 +99,7 @@ sub make_sync {
   print "Syncing...\n";
   my $vk = VK::MP3->new(login => $login, password => $password);
   my $rslt = $vk->get_playlist;
-  my @choice_list = 1 .. scalar @{rslt};
+  my @choice_list = 1 .. scalar @{$rslt};
   download_files($rslt, \@choice_list);
 }
 
