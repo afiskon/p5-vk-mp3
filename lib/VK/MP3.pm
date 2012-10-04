@@ -163,7 +163,7 @@ VK::MP3 - searches for mp3 on vkontakte.ru, also known as vk.com.
 
 B<VK::MP3> helps you to find direct URL's of audio files on vk.com (via regular expressions and LWP).
 
-This package also includes B<vkmp3> utility, that allows you to download found mp3.
+This package also includes B<vkmp3> utility, which allows you download found mp3 (or all files from your playlist).
 
 =head1 METHODS
 
