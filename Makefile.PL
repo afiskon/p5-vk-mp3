@@ -19,6 +19,8 @@ WriteMakefile(
       'Test::Mock::LWP'      => 0.06,
       'Text::Unidecode'      => 0.04,
       'MP3::Info'            => 1.24,
+      'JSON::XS'             => 2.33,
+      'Encode'               => 2.47,
     },
     META_MERGE   => {
       requires  => { perl => '5.008008' },

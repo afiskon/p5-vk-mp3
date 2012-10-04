@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# vk-get-mp3.pl script v 0.10.4
+# vk-get-mp3.pl
 # (c) Alexandr Alexeev 2011-2012 | http://eax.me/
 # Special thanks to Bekenev Ruslan ( http://bitbucket.org/KryDos ) 
 
@@ -13,7 +13,7 @@ use MP3::Info;
 use VK::MP3;
 
 use constant {
-    VERSION => '0.10.4',
+    VERSION => '0.11',
     DEFAULT_LOGIN => 'billy@microsoft.com',
     DEFAULT_PASSWORD => 'qwerty',
     DEFAULT_SAVE_DIR => './',
@@ -33,7 +33,9 @@ for my $x (qw/login password save_dir max_show/) {
 my $hidden_pass = "*" x length($password);
 
 my $query = join " ", @ARGV;
-die "vkmp3 ver ".VERSION."\nUsage:\n$0 <query>\n$0 --dialog\n"
+die "vkmp3 ver ".VERSION." (VK::MP3 ".$VK::MP3::VERSION.")\n".
+    "Environment variables: VKMP3_LOGIN, VKMP3_PASSWORD, VKMP3_SAVE_DIR, VKMP3_MAX_SHOW\n".
+    "Usage:\n$0 <query>\n$0 --dialog\n$0 --sync\n"
     unless($query);
 
 if($query eq "--dialog") {

@@ -8,8 +8,10 @@ use LWP;
 use LWP::Protocol::https;
 use HTML::Entities;
 use URI::Escape;
+use JSON::XS qw/decode_json/;
+use Encode;
 
-our $VERSION = 0.05;
+our $VERSION = 0.06;
 
 sub new {
   my ($class, %args) = @_;
@@ -47,25 +49,34 @@ sub get_playlist {
   my ($self) = @_;
   my $res;
 
-  $res = $self->{ua}->get('http://vk.com/audio'); # we need cookies
-  return 0 unless $res->is_success;
-
   $res = $self->{ua}->post('http://vk.com/audio', {
-      load_audios_silent => 1,
-      al => 1,
-      gid => 0,
-      id => $self->{id},
-    }, 
-      'Accept-Encoding' => 'gzip,deflate,sdch',
-      'Referer' => 'http://vk.com/audio',
-      'Origin' => 'http://vk.com',
-      'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 '.
-                      '(KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1',
-      'X-Requested-With' => 'XMLHttpRequest',
-    );  
-  return 0 unless $res->is_success;
-  warn $res->decoded_content;
- 
+        act => 'load_audios_silent',
+        al => 1,
+        gid => 0,
+        id => $self->{id},
+      }, 
+    ); 
+  die 'LWP: '.$res->status_line unless $res->is_success;
+
+  my $json_str = (split /<!>/, $res->decoded_content)[5];
+  $json_str =~ s/'/"/gs;
+  $json_str = Encode::encode('utf-8', $json_str);
+  my $json = decode_json($json_str);
+  return 'Invalid response' unless defined $json->{all} && ref($json->{all}) eq 'ARRAY';
+
+  my @rslt;
+  for my $item(@{$json->{all}}) {
+    next unless ref $item eq 'ARRAY' && scalar @{$item} > 7;
+    my $name = decode_entities($item->[5].' – '.$item->[6]);
+    $name =~ s/(^\s+|\s+$)//g;
+    my $rslt_item = {
+        name => $name,
+        duration => $item->[3],
+        link => $item->[2],
+      };
+    push @rslt, $rslt_item;
+  }
+  return \@rslt;
 }
 
 sub _parse_found_item {
@@ -137,9 +148,14 @@ VK::MP3 - searches for mp3 on vkontakte.ru, also known as vk.com.
     use VK::MP3;
      
     my $vk = VK::MP3->new(login => 'user', password => 'secret');
+    
     my $rslt = $vk->search('Nightwish');
-
     for (@{$rslt}) {
+        # $_->{name}, $_->{duration}, $_->{link}
+    }
+    
+    my $playlist = $vk->get_playlist;
+    for (@{$playlist}) {
         # $_->{name}, $_->{duration}, $_->{link}
     }
 
