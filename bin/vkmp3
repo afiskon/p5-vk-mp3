@@ -38,66 +38,91 @@ die "vkmp3 ver ".VERSION." (VK::MP3 ".$VK::MP3::VERSION.")\n".
     "Usage:\n$0 <query>\n$0 --dialog\n$0 --sync\n"
     unless($query);
 
-if($query eq "--dialog") {
+if($query eq '--dialog') {
+  dialog_loop();
+} elsif ($query eq '--sync') {
+  make_sync();
+} else {
+  search_query($query);
+}
+
+exit;
+
+sub dialog_loop {
   print "Dialog mode, enter query or 'exit'\nvkmp3> ";
   while($query = <STDIN>) {
     chomp($query);
     if(length($query)) {
       last if((lc $query eq 'exit')or(lc $query eq 'quit'));
-      $query = quotemeta $query;
-      system("$0 $query") unless($query eq "--dialog"); # FIXME!
+      search_query($query);
       print "\n";
     }
     print "vkmp3> ";
   }
-  exit;
 }
 
-print "Looking for '$query'...\n";
-utf8::decode($query);
+sub search_query {
+  my ($query) = @_;
+  print "Looking for '$query'...\n";
+  utf8::decode($query);
 
-my $vk = VK::MP3->new(login => $login, password => $password);
-my $rslt = $vk->search($query);
+  my $vk = VK::MP3->new(login => $login, password => $password);
+  my $rslt = $vk->search($query);
 
-die "Nothing found\n" unless scalar @{$rslt};
+  unless(@{$rslt}) {
+    print "Nothing found\n";
+    return;
+  }
 
-my $i;
-for my $t (@{$rslt}) {
-  my $name = $t->{name};
-  $name = substr($name,0,64)."..." if(length($name) > 64);
+  my $i;
+  for my $t (@{$rslt}) {
+    my $name = $t->{name};
+    $name = substr($name,0,64)."..." if(length($name) > 64);
 
-  my $duration = $t->{duration};
-  $duration = $duration
-    ? sprintf("%02d:%02d", int($duration / 60), $duration % 60)
-    : "??:??";
+    my $duration = $t->{duration};
+    $duration = $duration
+      ? sprintf("%02d:%02d", int($duration / 60), $duration % 60)
+      : "??:??";
 
-  utf8::encode($name);
-  print sprintf("%02d", ++$i)." [$duration] $name\n";
-  last if($i >= $max_show);
+    utf8::encode($name);
+    print sprintf("%02d", ++$i)." [$duration] $name\n";
+    last if($i >= $max_show);
+  }
+
+  print "Your choice(s) [none]: ";
+  chomp(my $choice = <STDIN>);
+  my @choice_list = grep { $_ ne '' } split /\D/, $choice;
+  download_files($rslt, \@choice_list);
 }
 
-print "Your choice(s) [none]: ";
-chomp(my $choice = <STDIN>);
-my @ch = split /\D/, $choice;
-
-for $choice (@ch) {
-  print "$choice - ignored" and next
-    unless($choice >= 1 and $choice <= scalar(@{$rslt}));
-
-  my $url = $rslt->[$choice-1]{link};
-  $url =~ s/'/\\'/g;
-
-  my $fname = unidecode($rslt->[$choice-1]{name}).'-'.time().'.mp3';
-  $fname =~ s/[^a-z0-9\-\_\.\ ]//gsi;
-  $fname =~ s/[\s\-]+/-/g;
-  $fname = $save_dir.$fname;
-
-  print "Downloading $url to $fname...\n";
-  system("lwp-download '$url' '$fname'");
-  die "Download: lwp-download returned $?\n" if $?;
-
-  my $bitrate = abs(get_mp3info($fname)->{BITRATE});
-  print "Bitrate = ".sprintf("%d",$bitrate)." kbps\n";
-  print "$fname\n";
+sub make_sync {
+  print "Syncing...\n";
+  my $vk = VK::MP3->new(login => $login, password => $password);
+  my $rslt = $vk->get_playlist;
+  my @choice_list = 1 .. scalar @{rslt};
+  download_files($rslt, \@choice_list);
 }
 
+sub download_files {
+  my ($rslt, $choice_list) = @_;
+  for my $choice (@{$choice_list}) {
+    print "$choice - ignored" and next
+      unless($choice >= 1 and $choice <= scalar(@{$rslt}));
+
+    my $url = $rslt->[$choice-1]{link};
+    $url =~ s/'/\\'/g;
+
+    my $fname = unidecode($rslt->[$choice-1]{name}).'-'.time().'.mp3';
+    $fname =~ s/[^a-z0-9\-\_\.\ ]//gsi;
+    $fname =~ s/[\s\-]+/-/g;
+    $fname = $save_dir.$fname;
+
+    print "Downloading $url to $fname...\n";
+    system("lwp-download '$url' '$fname'");
+    die "Download: lwp-download returned $?\n" if $?;
+
+    my $bitrate = abs(get_mp3info($fname)->{BITRATE});
+    print "Bitrate = ".sprintf("%d",$bitrate)." kbps\n";
+    print "$fname\n";
+  }
+}

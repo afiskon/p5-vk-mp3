@@ -1,5 +1,9 @@
 Revision history for Perl extension VK::MP3.
 
+0.05  Thu Oct  4 22:00:00 2012
+	- VK::MP3: get_playlist() method
+	- vkmp3: --sync flag
+
 0.04  Thu Sep 13 17:45:00 2012 
 	- regexps fixed
 	- moved to GitHub
