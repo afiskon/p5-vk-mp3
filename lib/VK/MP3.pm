@@ -11,7 +11,7 @@ use URI::Escape;
 use JSON::XS qw/decode_json/;
 use Encode;
 
-our $VERSION = 0.06;
+our $VERSION = 0.07;
 
 sub new {
   my ($class, %args) = @_;
@@ -109,7 +109,8 @@ sub _login {
     });  
 
   if(  $res->is_success &&
-      ($res->decoded_content =~ /var\s+vk\s*=\s*\{[^\{\}]*?id\s*\:\s*(\d+)/i) ) {
+      ($res->decoded_content =~ /var\s+vk\s*=\s*\{[^\{\}]*?id\s*\:\s*(\d+)/i
+       || $res->decoded_content =~ m#login\.vk\.com/\?act=logout#i ) ) {
     $self->{id} = $1;
     return 1;
   }
