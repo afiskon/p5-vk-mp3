@@ -11,7 +11,7 @@ use URI::Escape;
 use JSON::XS qw/decode_json/;
 use Encode;
 
-our $VERSION = 0.07;
+our $VERSION = 0.08;
 
 sub new {
   my ($class, %args) = @_;
@@ -121,7 +121,6 @@ sub _create_ua {
   my $ua = LWP::UserAgent->new();
 
   push @{ $ua->requests_redirectable }, 'POST';
-  $ua->ssl_opts(verify_hostname => 0);
   $ua->cookie_jar( {} );
 
   return $ua;
