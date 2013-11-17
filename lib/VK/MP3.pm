@@ -54,6 +54,7 @@ sub get_playlist {
         al => 1,
         gid => 0,
         id => $self->{id},
+        please_dont_ddos => '2',
       }, 
     ); 
   die 'LWP: '.$res->status_line unless $res->is_success;
