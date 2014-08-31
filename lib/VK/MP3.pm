@@ -64,7 +64,7 @@ sub get_playlist {
     $id = $self->{id};
   }
 
-  $res = $self->{ua}->post( 'http://vk.com/audio', {
+  $res = $self->{ua}->post( 'https://vk.com/audio', {
       act              => 'load_audios_silent',
       al               => 1,
       gid              => 0,
