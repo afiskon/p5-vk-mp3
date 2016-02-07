@@ -6,7 +6,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME          => 'VK::MP3',
-    AUTHOR        => 'Alexandr Alexeev <eax@cpan.org>',
+    AUTHOR        => 'Aleksander Alekseev <eax@cpan.org>',
     LICENSE       => 'perl_5',
     VERSION_FROM  => 'lib/VK/MP3.pm',
     ABSTRACT_FROM => 'lib/VK/MP3.pm',

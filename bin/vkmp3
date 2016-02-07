@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # vkmp3 script
-# (c) Alexandr Alexeev 2011-2012 | http://eax.me/
+# (c) Aleksander Alekseev 2011-2016 | http://eax.me/
 # Special thanks to Bekenev Ruslan ( http://bitbucket.org/KryDos ) 
 
 use strict;

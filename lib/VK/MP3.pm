@@ -234,11 +234,11 @@ L<VK>, L<VKontakte::API>, L<LWP::UserAgent>.
 
 =head1 AUTHOR
 
-Alexandr Alexeev, <eax at cpan.org> (L<http://eax.me/>)
+Aleksander Alekseev, <eax at cpan.org> (L<http://eax.me/>)
 
 =head1 COPYRIGHT
 
-Copyright 2011-2012 by Alexandr Alexeev
+Copyright 2011-2016 by Aleksander Alekseev
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
