@@ -11,7 +11,7 @@ use URI::Escape;
 use JSON::XS qw/decode_json/;
 use Encode;
 
-our $VERSION = 0.10;
+our $VERSION = 0.11;
 
 sub new {
   my ($class, %args) = @_;

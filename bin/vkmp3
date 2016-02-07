@@ -112,11 +112,16 @@ sub download_files {
     my $url = $rslt->[$choice-1]{link};
     $url =~ s/'/\\'/g;
 
-    my $fname = unidecode($rslt->[$choice-1]{name}).'-'.time().'.mp3';
+    my $fname = unidecode($rslt->[$choice-1]{name}).'.mp3';
     $fname =~ s/[^a-z0-9\-\_\.\ ]//gsi;
     $fname =~ s/[\s\-]+/-/g;
     $fname = $save_dir.$fname;
 
+    if(-e $fname) {
+      print "File $fname exists, skipping...\n";
+      next;
+    }
+ 
     print "Downloading $url to $fname...\n";
     system("lwp-download '$url' '$fname'");
     die "Download: lwp-download returned $?\n" if $?;
