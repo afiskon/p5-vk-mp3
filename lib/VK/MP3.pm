@@ -11,7 +11,7 @@ use URI::Escape;
 use JSON::XS qw/decode_json/;
 use Encode;
 
-our $VERSION = 0.09;
+our $VERSION = 0.10;
 
 sub new {
   my ($class, %args) = @_;
@@ -33,8 +33,8 @@ sub new {
 sub search {
   my ($self, $query) = @_;
 
-  my $res = $self->{ua}->get('http://vk.com/search?c[section]=audio&c[q]='.uri_escape_utf8($query));
-  die 'LWP: '.$res->status_line unless $res->is_success;
+  my $res = $self->{ua}->get('https://vk.com/search?c[section]=audio&c[q]='.uri_escape_utf8($query));
+  die 'lwp: '.$res->status_line unless $res->is_success;
 
   my @matches = $res->decoded_content =~  m'<input type="hidden" id="audio_info(.*?)</tbody></table>'sgi;
 
@@ -46,89 +46,35 @@ sub search {
 }
 
 sub get_playlist {
-  my ( $self, %args ) = @_;
+  my ($self) = @_;
   my $res;
-  my $id;
 
-  if ( defined $args{url} ) {
-    if ( $args{url} =~ m#/id(\d+)$# ) {
-      $id = $1;
-    } else {
-      $id = $self->_get_user_id( $args{url} );
-    }
-  } elsif ( defined $args{name} ) {
-    $id = $self->_get_user_id( 'https://vk.com/' . $args{name} );
-  } elsif ( defined $args{id} ) {
-    $id = $args{id};
-  } else {
-    $id = $self->{id};
-  }
+  $res = $self->{ua}->post('https://vk.com/audio', {
+        act => 'load_audios_silent',
+        al => 1,
+        gid => 0,
+        id => $self->{id},
+        please_dont_ddos => '2',
+      }, 
+    ); 
+  die 'LWP: '.$res->status_line unless $res->is_success;
 
-  $res = $self->{ua}->post( 'https://vk.com/audio', {
-      act              => 'load_audios_silent',
-      al               => 1,
-      gid              => 0,
-      id               => $id,
-      please_dont_ddos => '2',
-    },
-  );
-  die 'LWP: ' . $res->status_line unless $res->is_success;
-  
-  my $json_str = ( split /<!>/, $res->decoded_content )[5];
+  my $json_str = (split /<!>/, $res->decoded_content)[5];
   $json_str =~ s/'/"/gs;
-  $json_str = Encode::encode( 'utf-8', $json_str );
-  
-  my $json;
-  eval { $json = decode_json($json_str); };
-
-  if ($@) {
-    switch ($@) {
-      case ('Ошибка доступа') { die $json_str }
-      else { die( $json_str || '$json_str = UNDEFINED;' ) . "\n" . $@ }
-    }
-  }
-
-  my $json_str_album = ( split /<!>/, $res->decoded_content )[6];
-  $json_str_album =~ s/'/"/gs;
-  $json_str_album = Encode::encode( 'utf-8', $json_str_album );
-
-  my $albums;
-  eval {
-    $albums = decode_json($json_str_album);
-    $albums = $albums->{albums};
-    if ( !$albums or ref($albums) ne 'HASH' ) {
-      $albums = {};
-    } else {
-      $albums->{$_}->{title} = decode_entities( $albums->{$_}->{title} )
-        for ( keys %{$albums} );
-    }
-  };
-
-  if ($@) {
-    switch ($@) {
-      case ('Ошибка доступа') {
-        die $json_str_album . "\n" . $@
-      } else {
-        die( ( $json_str_album || '$json_str = UNDEFINED;' )."\n".$@ );
-      }
-    }
-  }
-  return 'Invalid response' unless defined $json->{all} && ref( $json->{all} ) eq 'ARRAY';
+  $json_str = Encode::encode('utf-8', $json_str);
+  my $json = decode_json($json_str);
+  return 'Invalid response' unless defined $json->{all} && ref($json->{all}) eq 'ARRAY';
 
   my @rslt;
-  for my $item ( @{ $json->{all} } ) {
+  for my $item(@{$json->{all}}) {
     next unless ref $item eq 'ARRAY' && scalar @{$item} > 7;
-    my $name = decode_entities( $item->[5] . ' – ' . $item->[6] );
+    my $name = decode_entities($item->[5].' – '.$item->[6]);
     $name =~ s/(^\s+|\s+$)//g;
     my $rslt_item = {
-      full_name     => $name,
-      author        => decode_entities( $item->[5] ),
-      name          => decode_entities( $item->[6] ),
-      duration      => $item->[3],
-      full_duration => $item->[4],
-      link          => $item->[2],
-      album         => $albums->{ $item->[8] },
-    };
+        name => $name,
+        duration => $item->[3],
+        link => $item->[2],
+      };
     push @rslt, $rslt_item;
   }
   return \@rslt;
@@ -144,7 +90,7 @@ sub _parse_found_item {
   $name = decode_entities($name);
 
   my ($duration) = $str =~ m{<div class="duration fl_r".*?>(\d+:\d+)</div>}i;
-  my ($link) = $str =~ m{value="(http://[^",]+\.mp3)}i;
+  my ($link) = $str =~ m{value="(https?://[^",]+\.mp3)}i;
 
   if($duration) {
     my ($min, $sec) = split /:/, $duration, 2;
@@ -158,35 +104,40 @@ sub _parse_found_item {
 
 sub _login {
   my $self = shift;
-  my $res = $self->{ua}->post('https://login.vk.com/?act=login', {
+
+  my $res = $self->{ua}->get('https://vk.com/');
+  die 'lwp: '.$res->status_line unless $res->is_success;
+
+  my ($ip_h) = $res->decoded_content =~  m'<input type="hidden" name="ip_h" value="([^"]+)" />'sgi;
+  my ($lg_h) = $res->decoded_content =~  m'<input type="hidden" name="lg_h" value="([^"]+)" />'sgi;
+
+  return 1 unless $ip_h && $lg_h;
+
+  $res = $self->{ua}->post('https://login.vk.com/?act=login', {
       email => $self->{login},
       pass => $self->{password},
+      act => "login",
+      role => "al_frame",
+      expire => "",
+      captcha_sid => "",
+      captcha_key => "",
+      _origin => "https://vk.com",
+      ip_h => $ip_h,
+      lg_h => $lg_h,
     });  
 
   if(  $res->is_success &&
-      ($res->decoded_content =~ /var\s+vk\s*=\s*\{[^\{\}]*?id\s*\:\s*(\d+)/i
-       || $res->decoded_content =~ m#login\.vk\.com/\?act=logout#i ) ) {
+      ($res->decoded_content =~ /parent\.onLoginDone/i) &&
+      ($res->decoded_content =~ /"uid":"(\d+)"/i)) {
     $self->{id} = $1;
     return 1;
   }
+
   return 0;
 }
 
-sub _get_user_id {
-  my ($self, $url) = @_;
-
-  my $res = $self->{ua}->get($url);
-  die 'LWP: '.$res->status_line unless $res->is_success;
-
-  if ($res->content =~ m#friends\?id=(\d+)#) {
-    return $1;
-  }
-
-  die "Can't get user id! LWP: ".$res->status_line."\n\n".$res->content."\n";
-}
-
 sub _create_ua {
-  my $ua = LWP::UserAgent->new();
+  my $ua = LWP::UserAgent->new(agent => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/47.0.2526.106 Chrome/47.0.2526.106 Safari/537.36");
 
   push @{ $ua->requests_redirectable }, 'POST';
   $ua->cookie_jar( {} );
@@ -250,19 +201,8 @@ Results, found by $query.
 =head2 C<get_playlist>
 
     my $rslt = $vk->get_playlist()
+
 Returns your playlist.
-
-    my $rslt = $vk->get_playlist(url => 'http://vk.com/userLink');
-Returns user playlist.
-
-    my $rslt = $vk->get_playlist(url => 'http://vk.com/id1'); # http://vk.com/id1
-Returns user playlist.
-
-    my $rslt = $vk->get_playlist(name => 'userLink'); # http://vk.com/userLink
-Returns user playlist.
-
-    my $rslt = $vk->get_playlist(id => 1); # http://vk.com/id1
-Returns user playlist.
 
 =head1 SUPPORT
 
