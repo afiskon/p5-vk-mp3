@@ -2,6 +2,5 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/main.t
 lib/VK/MP3.pm
 bin/vkmp3
